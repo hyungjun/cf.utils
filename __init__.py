@@ -15,6 +15,8 @@ from    optparse        import OptionParser
 
 from    ordereddict     import OrderedDict
 from    searchtable     import searchtable
+from    table           import Table
+
 
 def main(args,opts):
     print args
