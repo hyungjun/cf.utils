@@ -14,7 +14,7 @@ import  os,sys
 from    optparse        import OptionParser
 
 from    ordereddict     import OrderedDict
-
+from    searchtable     import searchtable
 
 def main(args,opts):
     print args
