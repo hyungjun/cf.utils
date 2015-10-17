@@ -2,7 +2,7 @@
 
 from distutils.core import setup
 
-setup( name                 = 'gtool',
+setup( name                 = 'cf.util',
        version              = '0.5',
        description          = 'util sub module of coreFrame',
        author               = 'Hyungjun Kim',
