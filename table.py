@@ -15,6 +15,7 @@ from    optparse        import OptionParser
 from    cf.util.LOGGER  import *
 
 from    numpy           import array, ma, arange
+from    cf.utils        import searchtable
 import  operator
 
 
@@ -26,14 +27,14 @@ class Table( object ):
 
     def set_table( self, aSrc, cols=None, axis_col=0):
 
-        self.cols       = map(str, range(aSrc.shape[1])) if cols==None  \
+        self._table_    = aSrc
+        self._table_ori_= aSrc.copy()
+
+        self.cols       = map(int, range(aSrc.shape[1])) if cols==None  \
                      else cols
 
         self.axis_col   = axis_col
-        self.rows       = self._table_[:, self.axis_col].tolist()
-
-        self._table_    = aSrc
-        self._table_ori_= aSrc.copy()
+        self.filters    = {}
 
 
     def sorted(self, key, reverse=True ):
@@ -41,9 +42,8 @@ class Table( object ):
         slc         = slice(None, None, -1) if reverse else \
                       slice(None, None, None)
 
-        iCol        = self.keys.index(key)
-        self.meta   = self.meta[ self.meta[:, iCol].argsort() ][slc]
-        self.grdc_no= self.meta[:,0].tolist()
+        iCol        = self.cols.index(key)
+        self._table_= self._table_[ self._table_[:, iCol].argsort() ][slc]
 
 
     def filtered(self, key, value, fnComp):
@@ -53,26 +53,32 @@ class Table( object ):
         e.g., grdc.filtered('m_yrs', 100, '>').filtered('area',10000, '>').filtered('river','amazon','~')
         '''
 
-        meta        = self.search( key, value, fnComp, ret_all=True )
+        print key, value, fnComp
 
-        if meta.size == 0:
+        table       = self.search( key, value, fnComp, ret_all=True )
+
+        if table.size == 0:
             raise ValueError, 'all records filtered out! [] returned!'
 
         else:
             self.filters[ key ]     = [value, fnComp]
-            self.meta               = meta
-            self.grdc_no            = self.meta[:,0].tolist()
+            self._table_            = table
 
         return self
 
 
-    def reset(self):
+    @property
+    def rows(self):
+        return self._table_[:, self.axis_col ].tolist()
+
+
+    def reset_table(self):
         self.filters    = {}
         self._table_    = self._table_ori_
         self.rows       = self._table_[:, self.axis_col].tolist()
 
 
-    def search( self, aSrc, cols, values, funcs='=', ret_all=False ):
+    def search( self, cols, values, funcs='=', ret_all=False ):
         '''
         aSrc    : source numpy 2d-array
         cols    : indices of target columns which start with 0
@@ -88,49 +94,10 @@ class Table( object ):
         searchtable( aSrc, (0, 3, 2), ('test', 3000, None), ('~','>', None) )
         '''
 
-        funcComp    = { '=': operator.ne, '!=': operator.eq,
-                        '>': operator.lt, '<' : operator.gt}
+        cols    = [self.cols.index( col ) for col in cols] if hasattr( cols, '__iter__') \
+             else self.cols.index( cols )
 
-
-        if not hasattr(cols,    '__iter__') : cols      = [ cols ]
-        if not hasattr(values,  '__iter__') : values    = [ values ]
-        if not hasattr(funcs,    '__iter__') : funcs    = [ funcs ]
-
-        Mask    = []
-
-
-        for col, val, fn in map( None, cols, values, funcs ):
-
-            aCol    = aSrc[:, col]
-
-            if val != None:
-
-                if fn in funcComp:
-                    mask    = funcComp[ fn ]( aCol, val )
-
-                elif fn == '~':
-                    mask    = [val not in s for s in aCol]
-
-                else:
-                    raise KeyError, '%s is not supported operator.'%func
-
-                Mask.append(  mask )
-                #Mask.append( blank | mask )
-
-            else:
-                Mask.append( resize( [False], aCol.shape ) )
-
-        Mask        = array( Mask ).any(0)
-
-        idxRow      = ma.array( arange( aSrc.shape[0] ), mask=Mask ).compressed()
-
-        aOut        = aSrc[ idxRow ]
-
-        if ret_all == True:
-            return aOut
-
-        else:
-            return aOut[:, cols]
+        return searchtable( self._table_, cols, values, funcs, ret_all )
 
 
 @ETA
@@ -145,10 +112,17 @@ def main(args,opts):
     aSrc        = load(srcPath)
     keys        = aSrc[0].tolist()
 
+    river       = Table( aSrc[1:] )
+    print river.search(
+                              [keys.index('station'),keys.index('d_yrs')],
+                              ['OBIDO',50],
+                              ['~','>'], ret_all=True)
+    '''
     river       = searchtable(aSrc[1:],
                               [keys.index('station'),keys.index('d_yrs')],
                               ['OBIDO',50],
                               ['~','>'], ret_all=True)
+    '''
     print river
 
     return
