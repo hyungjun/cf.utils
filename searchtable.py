@@ -40,7 +40,7 @@ def searchtable( aSrc, cols, values, funcs='=', ret_all=False ):
 
     if not hasattr(cols,    '__iter__') : cols      = [ cols ]
     if not hasattr(values,  '__iter__') : values    = [ values ]
-    if not hasattr(funcs,    '__iter__') : funcs    = [ funcs ]
+    if not hasattr(funcs,   '__iter__') : funcs     = [ funcs ]
 
     Mask    = []
 

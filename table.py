@@ -12,10 +12,9 @@
 
 import  os,sys
 from    optparse        import OptionParser
-from    cf.util.LOGGER  import *
 
 from    numpy           import array, ma, arange
-from    cf.utils        import searchtable
+from    searchtable     import searchtable
 import  operator
 
 
@@ -37,7 +36,10 @@ class Table( object ):
         self.filters    = {}
 
 
-    def sorted(self, key, reverse=True ):
+    def __getitem__(self, slc):
+        return self._table_[slc]
+
+    def sorted( self, key, reverse=True ):
 
         slc         = slice(None, None, -1) if reverse else \
                       slice(None, None, None)
@@ -52,8 +54,6 @@ class Table( object ):
 
         e.g., grdc.filtered('m_yrs', 100, '>').filtered('area',10000, '>').filtered('river','amazon','~')
         '''
-
-        print key, value, fnComp
 
         table       = self.search( key, value, fnComp, ret_all=True )
 
@@ -100,7 +100,6 @@ class Table( object ):
         return searchtable( self._table_, cols, values, funcs, ret_all )
 
 
-@ETA
 def main(args,opts):
     print args
     print opts
