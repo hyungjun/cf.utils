@@ -9,6 +9,6 @@ setup( name                 = 'cf.util',
        author_email         = 'hyungjun@gmail.com',
        url                  = '',
        package_dir          = {'cf.utils':'./'},
-       packages             = ['cf.utils'],
+       packages             = ['cf.utils','cf.utils.table'],
 #       install_requires     = ['numpy'],
       )

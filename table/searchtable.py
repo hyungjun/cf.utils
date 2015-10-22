@@ -12,7 +12,6 @@
 
 import  os,sys
 from    optparse        import OptionParser
-from    cf.util.LOGGER  import *
 
 from    numpy           import array, ma, arange
 import  operator
@@ -93,7 +92,7 @@ def main(args,opts):
     print args
     print opts
 
-    from numpy import *
+    from numpy import load
 
     srcPath     = '/data1/hjkim/git/coreFrame/io/GRDC/20150527_GRDC_Stations.npy'
 

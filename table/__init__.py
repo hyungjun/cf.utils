@@ -1,7 +1,7 @@
 #! /usr/bin/python
 #--------------------------------------------------------------------
 # PROGRAM    : __init__.py
-# CREATED BY : hjkim @IIS.2015-07-29 11:10:26.566047
+# CREATED BY : hjkim @IIS.2015-10-23 05:49:55.871090
 # MODIFED BY :
 #
 # USAGE      : $ ./__init__.py
@@ -13,9 +13,8 @@
 import  os,sys
 from    optparse        import OptionParser
 
-from    ordereddict     import OrderedDict
-from    table                   import Table
-from    table.searchtable       import searchtable
+from    table           import Table
+from    searchtable     import searchtable
 
 
 def main(args,opts):

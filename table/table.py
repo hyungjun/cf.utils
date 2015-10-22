@@ -33,6 +33,7 @@ class Table( object ):
                      else cols
 
         self.axis_col   = axis_col
+
         self.filters    = {}
 
 
@@ -48,7 +49,7 @@ class Table( object ):
         self._table_= self._table_[ self._table_[:, iCol].argsort() ][slc]
 
 
-    def filtered(self, key, value, fnComp):
+    def select(self, key, value, fnComp):
         '''
         * for sequential filetering
 
@@ -104,7 +105,7 @@ def main(args,opts):
     print args
     print opts
 
-    from numpy import *
+    from numpy import load
 
     srcPath     = '/data1/hjkim/git/coreFrame/io/GRDC/20150527_GRDC_Stations.npy'
 
