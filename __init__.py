@@ -13,7 +13,9 @@
 import  os,sys
 from    optparse        import OptionParser
 
-from    ordereddict     import OrderedDict
+from    ordereddict             import OrderedDict
+from    nearest_idx             import nearest_idx
+
 from    table                   import Table
 from    table.searchtable       import searchtable
 
