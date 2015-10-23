@@ -13,8 +13,9 @@
 import  os,sys
 from    optparse        import OptionParser
 
-from    numpy           import array, ma, arange
-from    searchtable     import searchtable
+from    numpy                       import array, ma, arange
+from    searchtable                 import searchtable
+from    cf.utils.ordereddict        import OrderedDict
 import  operator
 
 
@@ -60,6 +61,30 @@ class Table( object ):
         return self._table_[slc_r, slc_c]
 
 
+    def __len__(self):
+        return len( self.rows )
+
+
+    def __iter__(self):
+        return self
+
+
+    def next(self):
+
+        if not hasattr(self, 'curr'):
+            self.curr = -1
+
+        if self.curr >= len(self)-1:
+
+            self.curr   = -1
+            raise StopIteration
+
+        else:
+            self.curr +=1
+
+            return OrderedDict( zip( self.cols, self._table_[ self.curr ]) )
+
+
     def sorted( self, key, reverse=True ):
 
         slc         = slice(None, None, -1) if reverse else \
@@ -69,20 +94,24 @@ class Table( object ):
         self._table_= self._table_[ self._table_[:, iCol].argsort() ][slc]
 
 
-    def select(self, key, value, fnComp):
+    def select(self, keys, values, fnComps):
         '''
         * for sequential filetering
 
         e.g., grdc.filtered('m_yrs', 100, '>').filtered('area',10000, '>').filtered('river','amazon','~')
         '''
 
-        table       = self.search( key, value, fnComp, ret_all=True )
+        #table       = self.search( keys, values, fnComps, ret_all=True )
+        cols    = [self.cols.index( k ) for k in keys] if hasattr( keys, '__iter__') \
+             else self.cols.index( keys )
+
+        table       = searchtable( self._table_, cols, values, fnComps, True )
 
         if table.size == 0:
             raise ValueError, 'all records filtered out! [] returned!'
 
         else:
-            self.filters[ key ]     = [value, fnComp]
+            self.filters[ keys ]     = [values, fnComps]
             self._table_            = table
 
         return self
@@ -99,10 +128,10 @@ class Table( object ):
         self.rows       = self._table_[:, self.axis_col].tolist()
 
 
-    def search( self, cols, values, funcs='=', ret_all=False ):
+    def search( self, keys, values, funcs='=', ret_all=False ):
         '''
         aSrc    : source numpy 2d-array
-        cols    : indices of target columns which start with 0
+        keys    : keys of target columns in self.cols
         values  : data to be matched or None (get an entire column)
 
         func    : ['=', '>', '<', '!=', ..., '~']
@@ -115,10 +144,12 @@ class Table( object ):
         searchtable( aSrc, (0, 3, 2), ('test', 3000, None), ('~','>', None) )
         '''
 
-        cols    = [self.cols.index( col ) for col in cols] if hasattr( cols, '__iter__') \
-             else self.cols.index( cols )
+        cols    = [self.cols.index( key ) for key in keys] if hasattr( keys, '__iter__') \
+             else self.cols.index( key )
 
-        return searchtable( self._table_, cols, values, funcs, ret_all )
+        table   = searchtable( self._table_, cols, values, funcs, ret_all )
+
+        return Table( table, self.cols )
 
 
 def main(args,opts):
@@ -138,17 +169,18 @@ def main(args,opts):
     print river[1201500, ['grdc_no','lat','long']]
 
 
-    print river.search(
+    riv         = river.search(
                               ['station','d_yrs'],
                               ['OBIDO',50],
                               ['~','>'], ret_all=True)
+
+    for r in riv: print r
     '''
     river       = searchtable(aSrc[1:],
                               [keys.index('station'),keys.index('d_yrs')],
                               ['OBIDO',50],
                               ['~','>'], ret_all=True)
     '''
-    print river
 
     return
 
