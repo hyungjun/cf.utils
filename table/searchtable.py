@@ -87,7 +87,6 @@ def searchtable( aSrc, cols, values, funcs='=', ret_all=False ):
         return aOut[:, cols]
 
 
-@ETA
 def main(args,opts):
     print args
     print opts

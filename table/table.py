@@ -37,8 +37,28 @@ class Table( object ):
         self.filters    = {}
 
 
-    def __getitem__(self, slc):
-        return self._table_[slc]
+    def __getitem__(self, Slc):
+        '''
+        river[::2,     ['grdc_no','lat','long']]
+        river[1201500, ['grdc_no','lat','long']]
+        '''
+
+        Slc = [Slc, slice(None,None,None)] if not hasattr( Slc, '__iter__' ) else Slc
+
+        slc_r, slc_c    = Slc
+
+
+        if type( slc_r ) != slice           :
+            if not hasattr( slc_r, '__iter__' ) :   slc_r = [slc_r]
+            slc_r = [ self.rows.index( slc ) for slc in slc_r ]
+
+        print self.cols
+        if type( slc_c ) != slice           :
+            if not hasattr( slc_c, '__iter__' ) :   slc_c = [slc_c]
+            slc_c = [ self.cols.index( slc ) for slc in slc_c ]
+
+        return self._table_[slc_r, slc_c]
+
 
     def sorted( self, key, reverse=True ):
 
@@ -112,9 +132,14 @@ def main(args,opts):
     aSrc        = load(srcPath)
     keys        = aSrc[0].tolist()
 
-    river       = Table( aSrc[1:] )
+    river       = Table( aSrc[1:], cols=keys )
+
+    print river[::2, ['grdc_no','lat','long']]
+    print river[1201500, ['grdc_no','lat','long']]
+
+
     print river.search(
-                              [keys.index('station'),keys.index('d_yrs')],
+                              ['station','d_yrs'],
                               ['OBIDO',50],
                               ['~','>'], ret_all=True)
     '''
