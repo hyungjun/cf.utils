@@ -161,7 +161,13 @@ class Table( object ):
 
         else:
             cols    = self.cols if ret_all else [ self.cols[i] for i in cols ]
-            return Table( table, cols )
+            return self.new_instance( table, cols )
+            #return type(self)( table, cols )
+            #return self.__class__(table, cols)
+
+
+    def new_instance(self, table, cols):
+        return self.__class__( table, cols )
 
 
 def main(args,opts):
