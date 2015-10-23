@@ -128,7 +128,7 @@ class Table( object ):
         self.rows       = self._table_[:, self.axis_col].tolist()
 
 
-    def search( self, keys, values, funcs='=', ret_all=False ):
+    def search( self, keys, values, funcs='=', ret_raw=False, ret_all=True ):
         '''
         aSrc    : source numpy 2d-array
         keys    : keys of target columns in self.cols
@@ -137,8 +137,15 @@ class Table( object ):
         func    : ['=', '>', '<', '!=', ..., '~']
                   '~' for fuzzy searching
 
-        ret_all : return only selected columns or all columns
+        ret     : ['table',     #
+                   'array',     #
+                   ]
 
+        ret_raw : True          # numpy array for all colums
+                  False         # Table instance
+
+        ret_all : True          # return all columns
+                  False         # return only selected columns
 
         e.g.)
         searchtable( aSrc, (0, 3, 2), ('test', 3000, None), ('~','>', None) )
@@ -149,7 +156,12 @@ class Table( object ):
 
         table   = searchtable( self._table_, cols, values, funcs, ret_all )
 
-        return Table( table, self.cols )
+        if ret_raw:
+            return table
+
+        else:
+            cols    = self.cols if ret_all else [ self.cols[i] for i in cols ]
+            return Table( table, cols )
 
 
 def main(args,opts):
@@ -172,7 +184,7 @@ def main(args,opts):
     riv         = river.search(
                               ['station','d_yrs'],
                               ['OBIDO',50],
-                              ['~','>'], ret_all=True)
+                              ['~','>'], ret_all=False)
 
     for r in riv: print r
     '''
