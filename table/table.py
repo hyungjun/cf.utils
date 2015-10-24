@@ -58,7 +58,13 @@ class Table( object ):
             if not hasattr( slc_c, '__iter__' ) :   slc_c = [slc_c]
             slc_c = [ self.cols.index( slc ) for slc in slc_c ]
 
-        return self._table_[slc_r, slc_c]
+        table   = self._table_[slc_r, slc_c]
+
+        return self.post_getitem( table )
+
+
+    def post_getitem(self, value):
+        return value
 
 
     def __len__(self):
