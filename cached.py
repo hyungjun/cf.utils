@@ -11,6 +11,7 @@
 
 
 import  os,sys,types
+from    optparse        import OptionParser
 
 from    cStringIO       import StringIO
 import  lz4
@@ -110,7 +111,24 @@ class Cached( object ):
         return wrapper
 
 
+@Cached( './test' )
+def test( n ):
+    return array( range( n ) )
+
+
+def test2( n ):
+    return array( range( n )[::-1] )
+
+
 def main(args,opts):
+
+    import time
+
+    nCnt    = 10000
+
+    print test( nCnt )
+    print Cached( './test2' )(test2)( nCnt )
+
     print args
     print opts
 
