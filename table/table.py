@@ -30,12 +30,21 @@ class Table( object ):
         self._table_    = aSrc
         self._table_ori_= aSrc.copy()
 
-        self.cols       = map(int, range(aSrc.shape[1])) if cols==None  \
+        gencols_fn      = lambda i :('' if i < 26 else chr( i//26 + 64)) + chr(i%26 + 65)
+        self.cols       = map(gencols_fn, range(aSrc.shape[1])) if cols==None  \
                      else cols
 
         self.axis_col   = axis_col
 
         self.filters    = {}
+
+    @property
+    def rows(self):
+        return self._table_[:, self.axis_col ].tolist()
+
+
+    def __getattr__(self, col):
+        return self._table_[:, self.cols.index( col )]
 
 
     def __getitem__(self, Slc):
@@ -53,7 +62,6 @@ class Table( object ):
             if not hasattr( slc_r, '__iter__' ) :   slc_r = [slc_r]
             slc_r = [ self.rows.index( slc ) for slc in slc_r ]
 
-        print self.cols
         if type( slc_c ) != slice           :
             if not hasattr( slc_c, '__iter__' ) :   slc_c = [slc_c]
             slc_c = [ self.cols.index( slc ) for slc in slc_c ]
@@ -63,9 +71,15 @@ class Table( object ):
         return self.post_getitem( table )
 
 
+    def __str__(self):
+        return str( self._table_ ) + '\n' + str( self.cols )
+
     def post_getitem(self, value):
         return value
 
+
+    def __repr__(self):
+        return str( self._table_ )
 
     def __len__(self):
         return len( self.rows )
@@ -123,11 +137,6 @@ class Table( object ):
         return self
 
 
-    @property
-    def rows(self):
-        return self._table_[:, self.axis_col ].tolist()
-
-
     def reset_table(self):
         self.filters    = {}
         self._table_    = self._table_ori_
@@ -157,8 +166,8 @@ class Table( object ):
         searchtable( aSrc, (0, 3, 2), ('test', 3000, None), ('~','>', None) )
         '''
 
-        cols    = [self.cols.index( key ) for key in keys] if hasattr( keys, '__iter__') \
-             else self.cols.index( key )
+        cols    = [ self.cols.index( key ) for key in keys] if hasattr( keys, '__iter__') \
+             else [ self.cols.index( keys ) ]
 
         table   = searchtable( self._table_, cols, values, funcs, ret_all )
 
@@ -205,6 +214,10 @@ def main(args,opts):
                               ['OBIDO',50],
                               ['~','>'], ret_all=True)
     '''
+
+    print river.station
+    print getattr( river, 'grdc_no' )
+    print aSrc.dtype
 
     return
 

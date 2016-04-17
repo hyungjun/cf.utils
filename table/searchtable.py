@@ -13,7 +13,7 @@
 import  os,sys
 from    optparse        import OptionParser
 
-from    numpy           import array, ma, arange
+from    numpy           import array, ma, arange, resize
 import  operator
 
 
@@ -56,23 +56,20 @@ def searchtable( aSrc, cols, values, funcs='=', ret_all=False ):
             print '\n\t!! Warning... : error occured (ignored) converting unicode to ascii !!\n'
             blank   = array( [s.encode('ascii', 'ignore') for s in aCol.tolist()] ).astype('S1') == ' '
         '''
+        if fn in funcComp:
+            mask    = funcComp[ fn ]( aCol, [val]*aCol.size )
 
-        if val != None:
-
-            if fn in funcComp:
-                mask    = funcComp[ fn ]( aCol, val )
-
-            elif fn == '~':
-                mask    = [val not in s for s in aCol]
-
-            else:
-                raise KeyError, '%s is not supported operator.'%func
-
-            Mask.append(  mask )
-            #Mask.append( blank | mask )
+        elif fn == '~':
+            mask    = [val not in s for s in aCol]
 
         else:
-            Mask.append( resize( [False], aCol.shape ) )
+            raise KeyError, '%s is not supported operator.'%func
+
+        #print mask
+
+        Mask.append(  mask )
+        #Mask.append( blank | mask )
+
 
     Mask        = array( Mask ).any(0)
 
